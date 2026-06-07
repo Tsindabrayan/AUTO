@@ -594,13 +594,13 @@ function genererPDF() {
 function envoyerWhatsApp() {
   if (!valider()) return;
 
-  // 1. Générer et télécharger le PDF
-  try {
-    const doc = genererPDF();
-    doc.save(`Fiche_Client_${val('nom').replace(/\s+/g, '_')}.pdf`);
-  } catch (e) {
-    console.warn('PDF error:', e);
-  }
+  // // 1. Générer et télécharger le PDF
+  // try {
+  //   const doc = genererPDF();
+  //   doc.save(`Fiche_Client_${val('nom').replace(/\s+/g, '_')}.pdf`);
+  // } catch (e) {
+  //   console.warn('PDF error:', e);
+  // }
 
   // 2. Ouvrir WhatsApp avec le résumé texte
   const texte = genererTexteWhatsApp();
