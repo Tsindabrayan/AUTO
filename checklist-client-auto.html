@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Checklist Client 🚗</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --noir: #0a0a0a;
+    --rouge: #c0392b;
+    --rouge-vif: #e74c3c;
+    --or: #f39c12;
+    --blanc: #f5f5f0;
+    --gris: #1c1c1c;
+    --gris-clair: #2a2a2a;
+    --texte: #e0e0d8;
+    --border: #333;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--noir);
+    color: var(--texte);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* ── EN-TÊTE ── */
+  .header {
+    width: 100%;
+    background: var(--gris);
+    border-bottom: 3px solid var(--rouge);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+  }
+
+  .header img {
+    width: 100%;
+    max-height: 280px;
+    object-fit: cover;
+    display: block;
+    opacity: 0.92;
+  }
+
+  .header-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .header-placeholder .logo-icon {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .header-placeholder h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    letter-spacing: 4px;
+    color: var(--blanc);
+    text-shadow: 0 2px 20px rgba(192,57,43,0.5);
+  }
+
+  .header-placeholder p {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ── BADGE TITRE ── */
+  .form-title {
+    text-align: center;
+    padding: 28px 20px 8px;
+  }
+
+  .form-title h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    letter-spacing: 3px;
+    color: var(--blanc);
+  }
+
+  .form-title .subtitle {
+    font-size: 0.78rem;
+    color: var(--rouge-vif);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── CONTENEUR FORMULAIRE ── */
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 20px 0;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    background: var(--gris);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 20px 16px;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--rouge);
+    border-radius: 10px 0 0 10px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 3px;
+    color: var(--rouge-vif);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title span { font-size: 1.1em; }
+
+  /* ── CHAMPS ── */
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 5px;
+  }
+
+  .field label .req { color: var(--rouge-vif); margin-left: 2px; }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    background: var(--gris-clair);
+    border: 1.5px solid #3a3a3a;
+    border-radius: 7px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    color: var(--blanc);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: #555; }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--rouge);
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.15);
+  }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  .field select option {
+    background: var(--gris);
+    color: var(--blanc);
+  }
+
+  .field textarea { resize: vertical; min-height: 70px; }
+
+  /* ── GRILLE 2 COL ── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 520px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── BOUTON ENVOYER ── */
+  .send-btn {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    background: var(--rouge);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-top: 10px;
+    box-shadow: 0 6px 28px rgba(192,57,43,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .send-btn:hover {
+    background: var(--rouge-vif);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 36px rgba(231,76,60,0.45);
+  }
+
+  .send-btn:active { transform: scale(0.98); }
+
+  .send-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: #1a3c1a;
+    border: 1px solid #2d6a2d;
+    color: #7ddb7d;
+    padding: 14px 26px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: transform 0.4s cubic-bezier(.175,.885,.32,1.275);
+    z-index: 999;
+    white-space: nowrap;
+    max-width: 90vw;
+    text-align: center;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── SÉPARATEUR ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 4px 0 16px;
+  }
+
+  /* ── REQUIRED NOTE ── */
+  .req-note {
+    font-size: 0.72rem;
+    color: #666;
+    text-align: right;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  .req-note span { color: var(--rouge-vif); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ EN-TÊTE IMAGE ══════════════ -->
+<div class="header" id="headerBanner">
+  
+  <img src="../Desktop/IMG-20260607-WA0005.jpg" alt="Logo société" />
+  
+  <div class="header-placeholder">
+    <h1>AFRIAUTODRIVE</h1>
+    <p>Votre spécialiste importation véhicules</p>
+  </div>
+</div>
+
+<!-- ══════════════ TITRE ══════════════ -->
+<div class="form-title">
+  <h2>Checklist Client</h2>
+  <div class="subtitle">Fiche de commande véhicule</div>
+</div>
+
+<!-- ══════════════ FORMULAIRE ══════════════ -->
+<div class="container">
+  <div class="req-note"><span>*</span> Champs obligatoires</div>
+
+  <!-- IDENTITÉ -->
+  <div class="section">
+    <div class="section-title"><span>👤</span> Identité du client</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Nom complet <span class="req">*</span></label>
+        <input type="text" id="nom" placeholder="Ex : Jean Dupont" />
+      </div>
+      <div class="field">
+        <label>N° CNI / Passeport <span class="req">*</span></label>
+        <input type="text" id="cni" placeholder="Ex : A1234567" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Adresse complète <span class="req">*</span></label>
+      <input type="text" id="adresse" placeholder="Rue, quartier, ville..." />
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Numéro WhatsApp <span class="req">*</span></label>
+        <input type="tel" id="whatsapp" placeholder="+237 6XX XXX XXX" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="exemple@mail.com" />
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Contact secondaire</label>
+        <input type="tel" id="contact2" placeholder="+237 6XX XXX XXX" />
+      </div>
+      <div class="field">
+        <label>Ville de livraison <span class="req">*</span></label>
+        <input type="text" id="ville" placeholder="Ex : Douala, Yaoundé..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORT -->
+  <div class="section">
+    <div class="section-title"><span>📦</span> Modalités d'importation</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Type de fret <span class="req">*</span></label>
+        <select id="fret">
+          <option value="">— Choisir —</option>
+          <option>CIF</option>
+          <option>DDP</option>
+        </select>
+      </div>
+
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Délai souhaité <span class="req">*</span></label>
+        <input type="text" id="delai" placeholder="Ex : 2 mois, avant juin..." />
+      </div>
+      <div class="field">
+        <label>Nom du transitaire (si CIF)</label>
+        <input type="text" id="transitaire" placeholder="Nom du transitaire" />
+      </div>
+    </div>
+  </div>
+
+  <!-- VÉHICULE -->
+  <div class="section">
+    <div class="section-title"><span>🚙</span> Détails du véhicule</div>
+    <div class="field">
+      <label>Modèle recherché <span class="req">*</span></label>
+      <input type="text" id="modele" placeholder="Ex : Toyota Land Cruiser 200, BMW X5..." />
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Usage du véhicule <span class="req">*</span></label>
+        <select id="usage">
+          <option value="">— Choisir —</option>
+          <option>Personnel / Famille</option>
+          <option>Professionnel / Bureau</option>
+          <option>Transport en commun</option>
+          <option>Tout-terrain / 4×4</option>
+          <option>Taxi / VTC</option>
+          <option>Autre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Boîte de vitesse <span class="req">*</span></label>
+        <select id="boite">
+          <option value="">— Choisir —</option>
+          <option>Automatique</option>
+          <option>Manuelle</option>
+          <option>Indifférent</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Couleur souhaitée</label>
+        <input type="text" id="couleur" placeholder="Ex : Noir, Blanc, Argent..." />
+      </div>
+      <div class="field">
+        <label>Options importantes</label>
+        <input type="text" id="options" placeholder="Ex : Toit ouvrant, Caméra..." />
+      </div>
+    </div>
+  </div>
+
+  <!-- BOUTON ENVOYER -->
+  <button class="send-btn" onclick="envoyerWhatsApp()">
+    📲 &nbsp; ENVOYER MA COMMANDE
+  </button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Redirection WhatsApp en cours...</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+const WHATSAPP_NUMBER = "85247344901"; // numéro sans +
+
+function val(id) {
+  return (document.getElementById(id)?.value || '').trim();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function valider() {
+  const requis = [
+    { id: 'nom', label: 'Nom complet' },
+    { id: 'cni', label: 'N° CNI/Passeport' },
+    { id: 'adresse', label: 'Adresse complète' },
+    { id: 'whatsapp', label: 'WhatsApp' },
+    { id: 'ville', label: 'Ville de livraison' },
+    { id: 'fret', label: 'Type de fret (CIF/DDP)' },
+    { id: 'budget', label: 'Budget maximum' },
+    { id: 'delai', label: 'Délai souhaité' },
+    { id: 'modele', label: 'Modèle recherché' },
+    { id: 'usage', label: 'Usage du véhicule' },
+    { id: 'boite', label: 'Boîte de vitesse' },
+  ];
+
+  for (const r of requis) {
+    if (!val(r.id)) {
+      showToast(`⚠️ Champ requis : ${r.label}`);
+      document.getElementById(r.id)?.focus();
+      return false;
+    }
+  }
+  return true;
+}
+
+function genererTexteWhatsApp() {
+  const now = new Date();
+  const date = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const heure = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+  return `🚗 *NOUVELLE FICHE CLIENT AUTO*
+📅 ${date} à ${heure}
+
+━━━━━━━━━━━━━━━━━━━━
+👤 *IDENTITÉ*
+━━━━━━━━━━━━━━━━━━━━
+• Nom complet : ${val('nom')}
+• CNI/Passeport : ${val('cni')}
+• Adresse : ${val('adresse')}
+• WhatsApp : ${val('whatsapp')}
+• Email : ${val('email') || 'Non renseigné'}
+• Contact 2 : ${val('contact2') || 'Non renseigné'}
+• Ville de livraison : ${val('ville')}
+
+━━━━━━━━━━━━━━━━━━━━
+📦 *IMPORTATION*
+━━━━━━━━━━━━━━━━━━━━
+• Type de fret : ${val('fret')}
+• Budget max : ${val('budget')}
+• Délai souhaité : ${val('delai')}
+• Transitaire : ${val('transitaire') || 'Non renseigné'}
+
+━━━━━━━━━━━━━━━━━━━━
+🚙 *VÉHICULE*
+━━━━━━━━━━━━━━━━━━━━
+• Modèle : ${val('modele')}
+• Usage : ${val('usage')}
+• Boîte : ${val('boite')}
+• Couleur : ${val('couleur') || 'Non renseigné'}
+• Options : ${val('options') || 'Non renseigné'}
+
+━━━━━━━━━━━━━━━━━━━━
+✅ Fiche envoyée via formulaire client`;
+}
+
+function genererPDF() {
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const pageW = 210;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fr-FR');
+
+  // Fond noir
+  doc.setFillColor(10, 10, 10);
+  doc.rect(0, 0, 210, 297, 'F');
+
+  // Bande rouge entête
+  doc.setFillColor(192, 57, 43);
+  doc.rect(0, 0, 210, 38, 'F');
+
+  // Titre
+  doc.setTextColor(245, 245, 240);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.text('CHECKLIST CLIENT AUTO', pageW / 2, 18, { align: 'center' });
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Fiche générée le ${dateStr}`, pageW / 2, 28, { align: 'center' });
+
+  let y = 50;
+
+  const section = (titre, icone = '') => {
+    doc.setFillColor(28, 28, 28);
+    doc.roundedRect(12, y - 5, 186, 8, 2, 2, 'F');
+    doc.setFillColor(192, 57, 43);
+    doc.rect(12, y - 5, 4, 8, 'F');
+    doc.setTextColor(231, 76, 60);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text(`${icone}  ${titre}`.toUpperCase(), 20, y + 1);
+    y += 12;
+  };
+
+  const ligne = (label, valeur) => {
+    if (y > 270) { doc.addPage(); y = 20; doc.setFillColor(10,10,10); doc.rect(0,0,210,297,'F'); }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(153, 153, 153);
+    doc.text(label.toUpperCase(), 18, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(220, 220, 210);
+    doc.setFontSize(9.5);
+    doc.text(valeur || 'Non renseigné', 80, y);
+    // ligne séparatrice
+    doc.setDrawColor(42, 42, 42);
+    doc.line(18, y + 2, 195, y + 2);
+    y += 9;
+  };
+
+  // ── IDENTITÉ
+  section('Identité du client', '');
+  ligne('Nom complet', val('nom'));
+  ligne('CNI / Passeport', val('cni'));
+  ligne('Adresse', val('adresse'));
+  ligne('WhatsApp', val('whatsapp'));
+  ligne('Email', val('email'));
+  ligne('Contact secondaire', val('contact2'));
+  ligne('Ville de livraison', val('ville'));
+  y += 4;
+
+  // ── IMPORTATION
+  section('Modalités d\'importation', '');
+  ligne('Type de fret', val('fret'));
+  ligne('Budget maximum', val('budget'));
+  ligne('Délai souhaité', val('delai'));
+  ligne('Nom transitaire', val('transitaire'));
+  y += 4;
+
+  // ── VÉHICULE
+  section('Détails du véhicule', '');
+  ligne('Modèle recherché', val('modele'));
+  ligne('Usage du véhicule', val('usage'));
+  ligne('Boîte de vitesse', val('boite'));
+  ligne('Couleur souhaitée', val('couleur'));
+  ligne('Options importantes', val('options'));
+  y += 10;
+
+  // Pied de page
+  doc.setFillColor(192, 57, 43);
+  doc.rect(0, 287, 210, 10, 'F');
+  doc.setTextColor(245, 245, 240);
+  doc.setFontSize(7);
+  doc.text('Document confidentiel — AutoImport Pro', pageW / 2, 293, { align: 'center' });
+
+  return doc;
+}
+
+function envoyerWhatsApp() {
+  if (!valider()) return;
+
+  // 1. Générer et télécharger le PDF
+  try {
+    const doc = genererPDF();
+    doc.save(`Fiche_Client_${val('nom').replace(/\s+/g, '_')}.pdf`);
+  } catch (e) {
+    console.warn('PDF error:', e);
+  }
+
+  // 2. Ouvrir WhatsApp avec le résumé texte
+  const texte = genererTexteWhatsApp();
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texte)}`;
+
+  showToast('✅ PDF téléchargé — WhatsApp en cours...');
+  setTimeout(() => { window.open(url, '_blank'); }, 800);
+}
+</script>
+</body>
+</html>
