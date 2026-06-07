@@ -450,7 +450,6 @@ function valider() {
     { id: 'whatsapp', label: 'WhatsApp' },
     { id: 'ville', label: 'Ville de livraison' },
     { id: 'fret', label: 'Type de fret (CIF/DDP)' },
-    { id: 'budget', label: 'Budget maximum' },
     { id: 'delai', label: 'Délai souhaité' },
     { id: 'modele', label: 'Modèle recherché' },
     { id: 'usage', label: 'Usage du véhicule' },
@@ -490,7 +489,6 @@ function genererTexteWhatsApp() {
 📦 *IMPORTATION*
 ━━━━━━━━━━━━━━━━━━━━
 • Type de fret : ${val('fret')}
-• Budget max : ${val('budget')}
 • Délai souhaité : ${val('delai')}
 • Transitaire : ${val('transitaire') || 'Non renseigné'}
 
@@ -574,7 +572,6 @@ function genererPDF() {
   // ── IMPORTATION
   section('Modalités d\'importation', '');
   ligne('Type de fret', val('fret'));
-  ligne('Budget maximum', val('budget'));
   ligne('Délai souhaité', val('delai'));
   ligne('Nom transitaire', val('transitaire'));
   y += 4;
